@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spots</title>
+  <!-- EmailJS SDK -->
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <!-- Font Awesome untuk ikon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4a6bff;
+      --primary-hover: #3a56d4;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --light-gray: #f8f9fa;
+      --border-color: #dee2e6;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      color: #333;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .form-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+    
+    .form-container:hover {
+      transform: translateY(-2px);
+    }
+    
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: var(--primary);
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+    
+    .input-icon {
+      position: relative;
+    }
+    
+    .input-icon i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 15px 12px 40px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+    }
+    
+    .input-icon input, 
+    .input-icon select {
+      padding-left: 40px;
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+      outline: none;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      padding: 12px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 107, 255, 0.3);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .status-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    
+    .status-option {
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid var(--border-color);
+      background: var(--light-gray);
+    }
+    
+    .status-option:hover {
+      transform: translateY(-2px);
+    }
+    
+    .status-option.selected {
+      border-color: var(--primary);
+      background: rgba(74, 107, 255, 0.1);
+      font-weight: 600;
+    }
+    
+    .status-option[data-value="Hadir"] {
+      color: var(--success);
+    }
+    
+    .status-option[data-value="Izin"] {
+      color: var(--warning);
+    }
+    
+    .status-option[data-value="Sakit"] {
+      color: var(--danger);
+    }
+    
+    .status-option[data-value="Alpha"] {
+      color: #6c757d;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    #loading {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid var(--primary);
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    
+    .toast.success {
+      background: var(--success);
+    }
+    
+    .toast.error {
+      background: var(--danger);
+    }
+    
+    @media (max-width: 768px) {
+      .status-options {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      body {
+        padding: 15px;
+      }
+      
+      .form-container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-container">
+      <h2><i class="fas fa-chalkboard-teacher"></i> Form Absensi</h2>
+      <form id="absensiForm">
+        <div class="form-group input-icon">
+          <label for="nama_guru">Nama Lengkap</label>
+          <i class="fas fa-user"></i>
+          <input type="text" id="nama_guru" name="nama_guru" placeholder="Masukkan nama lengkap" required>
+        </div>
+        
+        <div class="container">
+    <div class="form-container">
+      <h2><i class="fas fa-chalkboard-teacher"></i> 
+      <form id="absensiForm">
+        <div class="form-group input-icon">
+          <label for="S_G">S G</label>
+          <i class="fas fa-user"></i>
+          <input type="text" id="S_G" name="S_G" placeholder="ketik dengan angka contoh 1" required>
+        </div>
+        
+        <div class="form-group input-icon">
+          <label for="tanggal">Tanggal</label>
+          <i class="fas fa-calendar-day"></i>
+          <input type="date" id="tanggal" name="tanggal" required>
+        </div>
+        
+        <div class="form-group input-icon">
+          <label for="waktu">Waktu</label>
+          <i class="fas fa-clock"></i>
+          <input type="time" id="waktu" name="waktu" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Status Kehadiran</label>
+          <input type="hidden" id="status" name="status" required>
+          <div class="status-options">
+            <div class="status-option" data-value="Hadir">
+              <i class="fas fa-check-circle"></i> Hadir
+            </div>
+            <div class="status-option" data-value="Izin">
+              <i class="fas fa-envelope"></i> Izin
+            </div>
+            <div class="status-option" data-value="Sakit">
+              <i class="fas fa-procedures"></i> Sakit
+            </div>
+            <div class="status-option" data-value="Alpha">
+              <i class="fas fa-times-circle"></i> Alpha
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group input-icon">
+          <label for="catatan">Catatan (Materi & Sesi)</label>
+          <i class="fas fa-sticky-note"></i>
+          <textarea id="catatan" name="catatan" placeholder="note: hadir, jangan di isi"></textarea>
+        </div>
+        
+        <div id="loading" class="hidden">
+          <div class="spinner"></div>
+          <p>Mengirim data...</p>
+        </div>
+        
+        <button type="submit" id="submitBtn">
+          <i class="fas fa-paper-plane"></i> Kirim Absensi
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // Inisialisasi EmailJS
+    (function(){
+      emailjs.init("5dTJkFyf7Iu7xYW_B");
+    })();
+    
+    // Set tanggal default ke hari ini
+    document.addEventListener('DOMContentLoaded', function() {
+      const today = new Date();
+      const dateStr = today.toISOString().split('T')[0];
+      document.getElementById('tanggal').value = dateStr;
+      
+      // Set waktu default ke waktu sekarang
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('waktu').value = `${hours}:${minutes}`;
+      
+      // Status kehadiran interaktif
+      const statusOptions = document.querySelectorAll('.status-option');
+      statusOptions.forEach(option => {
+        option.addEventListener('click', function() {
+          statusOptions.forEach(opt => opt.classList.remove('selected'));
+          this.classList.add('selected');
+          document.getElementById('status').value = this.dataset.value;
+        });
+      });
+    });
+    
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Form submission
+    document.getElementById('absensiForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Validasi status kehadiran
+      if (!document.getElementById('status').value) {
+        showToast('Silakan pilih status kehadiran', 'error');
+        return;
+      }
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const loading = document.getElementById('loading');
+      
+      submitBtn.disabled = true;
+      submitBtn.classList.add('hidden');
+      loading.classList.remove('hidden');
+      
+      emailjs.sendForm('service_ps6901l', 'template_uxpt9bm', this)
+        .then(function() {
+          showToast('Absensi berhasil dikirim! ✅', 'success');
+          document.getElementById('absensiForm').reset();
+          
+          // Reset status selection
+          document.querySelectorAll('.status-option').forEach(opt => {
+            opt.classList.remove('selected');
+          });
+          document.getElementById('status').value = '';
+          
+          // Set kembali tanggal dan waktu default
+          const today = new Date();
+          const dateStr = today.toISOString().split('T')[0];
+          document.getElementById('tanggal').value = dateStr;
+          
+          const now = new Date();
+          const hours = String(now.getHours()).padStart(2, '0');
+          const minutes = String(now.getMinutes()).padStart(2, '0');
+          document.getElementById('waktu').value = `${hours}:${minutes}`;
+        })
+        .catch(function(err) {
+          console.error('Error detail:', err);
+          showToast('Gagal mengirim absensi. Silakan coba lagi.', 'error');
+        })
+        .finally(function() {
+          submitBtn.disabled = false;
+          submitBtn.classList.remove('hidden');
+          loading.classList.add('hidden');
+        });
+    });
+  </script>
+</body>
+</html>
